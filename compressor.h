@@ -3,4 +3,4 @@
 
 extern void * compressor(void * params);
 
-#endif
+#endif // COMPRESSOR_H

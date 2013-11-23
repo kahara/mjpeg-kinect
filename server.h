@@ -3,4 +3,4 @@
 
 extern void * server(void * params);
 
-#endif
+#endif // SERVER_H

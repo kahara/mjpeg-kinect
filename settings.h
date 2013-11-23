@@ -6,7 +6,7 @@
 #define SETUP_STREAM_IR  0x2
 #define SETUP_STREAMS (SETUP_STREAM_RGB) // (SETUP_STREAM_RGB | SETUP_STREAM_IR)
 
-#define SETUP_STREAM_INTERVAL 1000 // No guarantees here.
+#define SETUP_STREAM_INTERVAL 1000
 
 // Images; RGB is a raw Bayer image (RGGB), IR is packed 10 bit pixels
 #define SETUP_IMAGE_WIDTH_RGB 640

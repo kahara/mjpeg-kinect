@@ -3,4 +3,4 @@
 
 extern void * preprocessor(void * params);
 
-#endif
+#endif // PREPROCESSOR_H

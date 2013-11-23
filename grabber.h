@@ -3,4 +3,4 @@
 
 extern void * grabber(void * params);
 
-#endif
+#endif // GRABBER_H
