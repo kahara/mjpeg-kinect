@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -Wall -pthread
-LIBS = -lrt
+LIBS = -lrt -ljpeg
 
 mjpeg-kinect: main.o grabber.o preprocessor.o compressor.o server.o
 	$(CC) $(CFLAGS) $^ -o mjpeg-kinect $(LIBS)
