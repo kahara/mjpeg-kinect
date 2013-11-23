@@ -1,0 +1,20 @@
+#ifndef SETTINGS_H
+#define SETTINGS_H
+
+// Enable or disable streams
+#define SETUP_STREAM_RGB 0x1
+#define SETUP_STREAM_IR  0x2
+#define SETUP_STREAMS (SETUP_STREAM_RGB) // (SETUP_STREAM_RGB | SETUP_STREAM_IR)
+
+#define SETUP_STREAM_INTERVAL 1000 // No guarantees here.
+
+// Images; RGB is a raw Bayer image (RGGB), IR is packed 10 bit pixels
+#define SETUP_IMAGE_WIDTH_RGB 640
+#define SETUP_IMAGE_HEIGHT_RGB 480
+#define SETUP_IMAGE_SIZE_RGB (SETUP_IMAGE_WIDTH_RGB * SETUP_IMAGE_HEIGHT_RGB)
+#define SETUP_IMAGE_WIDTH_IR 640
+#define SETUP_IMAGE_HEIGHT_IR 488
+#define SETUP_IMAGE_SIZE_IR ((SETUP_IMAGE_WIDTH_IR * SETUP_IMAGE_HEIGHT_IR * 10) / 8)
+
+#endif // SETTINGS_H
+

@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <signal.h>
 #include <time.h>
-#include "grabber.h"
+#include "compressor.h"
 
-void * grabber(void * params)
+void * compressor(void * params)
 {
-  
-  
   return NULL;
 }

@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <signal.h>
 #include <time.h>
-#include "grabber.h"
+#include "server.h"
 
-void * grabber(void * params)
+void * server(void * params)
 {
-  
-  
   return NULL;
 }
