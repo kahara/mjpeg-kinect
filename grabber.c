@@ -12,6 +12,7 @@ void * grabber(void * args)
   struct timeval tv;
   
   printf("%p\n%p\n", input, output);
+  printf("%d\n%d\n", output->framesize_rgb, output->framesize_ir);
   
   while(1) {
     tv.tv_sec = 10;

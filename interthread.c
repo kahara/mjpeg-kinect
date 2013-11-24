@@ -12,8 +12,11 @@ struct channel init_channel(int size_rgb, int size_ir)
   
   ch.buffer_rgb[0] = malloc(size_rgb);
   ch.buffer_rgb[1] = malloc(size_rgb);
+  ch.framesize_rgb = size_rgb;
+  
   ch.buffer_ir[0] = malloc(size_ir);
   ch.buffer_ir[1] = malloc(size_ir);
+  ch.framesize_ir = size_ir;
   
   ch.index_rgb = -1;
   ch.index_ir = -1;

@@ -28,7 +28,7 @@ int main(int argc, char **argv)
   struct timeval tv;
   
   // Set up inter-thread communications "channels"
-  // Image sizes here make the assumption that a JPEG compressed image will never be bigger than a source bitmap
+  // Compressor to Server makes the assumption that a JPEG compressed image will never be bigger than a source bitmap
   ch_g2p = init_channel(SETUP_IMAGE_SIZE_RAW_RGB, SETUP_IMAGE_SIZE_RAW_IR); // Grabber      to Preprocessor
   ch_p2c = init_channel(SETUP_IMAGE_SIZE_RGB, SETUP_IMAGE_SIZE_IR);         // Preprocessor to Compressor
   ch_c2s = init_channel(SETUP_IMAGE_SIZE_RGB, SETUP_IMAGE_SIZE_IR);         // Compressor   to Server
