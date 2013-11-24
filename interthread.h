@@ -6,7 +6,8 @@
 #include <stddef.h>
 
 struct channel {
-  pthread_mutex_t lock; // lock this when doing anything with this structure
+  pthread_mutex_t lock; // producer signals consumer with cv that a new frame is available
+  pthread_cond_t new_frame;
   
   uint8_t * buffer_rgb[2]; // double buffer for rgb images
   size_t framesize_rgb; // size of one rgb frame

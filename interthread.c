@@ -9,6 +9,7 @@ struct channel init_channel(int size_rgb, int size_ir)
   struct channel ch;
   
   pthread_mutex_init(&ch.lock, NULL);
+  pthread_cond_init(&ch.new_frame, NULL);
   
   if(size_rgb) {
     ch.buffer_rgb[0] = malloc(size_rgb);
