@@ -9,16 +9,13 @@ void * grabber(void * args)
 {
   struct thread_arg * ta = (struct thread_arg *)args;
   struct channel * input = ta->input, * output = ta->output;
-  struct timeval tv;
-  
-  printf("%p\n%p\n", input, output);
-  printf("%d\n%d\n", output->framesize_rgb, output->framesize_ir);
   
   while(1) {
-    tv.tv_sec = 10;
-    tv.tv_usec = 0;
-    select(0, NULL, NULL, NULL, &tv);
-    printf("grabber\n");
+    
+    pthread_mutex_lock(&input->lock);
+    pthread_cond_wait(&input->new_frame, &input->lock);
+    pthread_mutex_unlock(&input->lock);
+    printf("grab new frame\n");
   }
   
   return NULL;
