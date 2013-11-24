@@ -29,9 +29,9 @@ int main(int argc, char **argv)
   
   // Set up inter-thread communications "channels"
   // Compressor to Server makes the assumption that a JPEG compressed image will never be bigger than a source bitmap
-  ch_g2p = init_channel(SETUP_IMAGE_SIZE_RAW_RGB, SETUP_IMAGE_SIZE_RAW_IR); // Grabber      to Preprocessor
-  ch_p2c = init_channel(SETUP_IMAGE_SIZE_RGB, SETUP_IMAGE_SIZE_IR);         // Preprocessor to Compressor
-  ch_c2s = init_channel(SETUP_IMAGE_SIZE_RGB, SETUP_IMAGE_SIZE_IR);         // Compressor   to Server
+  ch_g2p = init_channel((SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RAW_RGB : 0, (SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_RAW_IR : 0); // Grabber      to Preprocessor
+  ch_p2c = init_channel((SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RGB : 0, (SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_IR : 0);         // Preprocessor to Compressor
+  ch_c2s = init_channel((SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RGB : 0, (SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_IR : 0);         // Compressor   to Server
   
   // Start the "subsystems"
   pthread_create(&grabber_thread, NULL, &grabber, &arg_grabber);
