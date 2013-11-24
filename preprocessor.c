@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "preprocessor.h"
+#include "interthread.h"
 
-void * preprocessor(void * params)
+void * preprocessor(void * args)
 {  
   return NULL;
 }
