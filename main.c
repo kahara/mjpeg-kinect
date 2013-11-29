@@ -28,6 +28,8 @@ int main(int argc, char **argv)
   struct thread_arg arg_grabber = { &ch_m2g, &ch_g2p }, arg_preprocessor = { &ch_g2p, &ch_p2c }, arg_compressor = { &ch_p2c, &ch_c2s }, arg_server = { &ch_c2s, NULL };
   
   pthread_t grabber_thread, preprocessor_thread, compressor_thread, server_thread;
+  
+  // The main "ticker"
   struct sigaction sa;
   struct itimerval tmr;
   struct timeval tv;
@@ -35,13 +37,19 @@ int main(int argc, char **argv)
   // Set up inter-thread communications "channels"
   // "Main to Grabber" is used for syncing only, no data is passed
   // Compressor to Server makes the assumption that a JPEG compressed image will never be bigger than a source bitmap
-  ch_m2g = init_channel(0, 0);                                                            // Main         to Grabber
-  ch_g2p = init_channel((SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RAW_RGB : 0, \
-			(SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_RAW_IR : 0); // Grabber      to Preprocessor
-  ch_p2c = init_channel((SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RGB : 0, \
-			(SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_IR : 0);     // Preprocessor to Compressor
-  ch_c2s = init_channel((SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RGB : 0, \
-			(SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_IR : 0);     // Compressor   to Server
+  ch_m2g = init_channel(SETUP_BUFFER_LENGTH_M2G, 0, 0);                                        // Main         to Grabber
+
+  ch_g2p = init_channel(SETUP_BUFFER_LENGTH_G2P, \
+			(SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RAW_RGB : 0, \
+			(SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_RAW_IR : 0);     // Grabber      to Preprocessor
+
+  ch_p2c = init_channel(SETUP_BUFFER_LENGTH_P2C, \
+			(SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RGB : 0, \
+			(SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_IR : 0);         // Preprocessor to Compressor
+
+  ch_c2s = init_channel(SETUP_BUFFER_LENGTH_C2S, \
+			(SETUP_STREAMS & SETUP_STREAM_RGB) ? SETUP_IMAGE_SIZE_RGB : 0, \
+			(SETUP_STREAMS & SETUP_STREAM_IR) ? SETUP_IMAGE_SIZE_IR : 0);         // Compressor   to Server
   
   // Start the "subsystems"
   pthread_create(&grabber_thread, NULL, &grabber, &arg_grabber);
