@@ -5,20 +5,17 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+struct frame {
+  size_t size;
+  uint8_t * data;
+};
+
 struct channel {
   pthread_mutex_t lock; // producer signals consumer with cv that a new frame is available
   pthread_cond_t new_frame;
   
-  uint8_t * buffer_rgb[2]; // double buffer for rgb images
-  size_t framesize_rgb; // size of one rgb frame
-  
-  uint8_t * buffer_ir[2];  // ..same for ir images
-  size_t framesize_ir;
-  
-  int8_t index_rgb; // current "good to read" half of rgb buffer, or -1 if not ready
-  int8_t index_ir;  // ..same for ir buffer
-  
-  
+  struct frame * rgb; // buffer for rgb images
+  struct frame * ir;  // ..same for ir images
 };
 
 struct thread_arg {
@@ -26,7 +23,7 @@ struct thread_arg {
   struct channel * output;
 };
 
-extern struct channel init_channel(int size_rgb, int size_ir);
+extern struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir);
 extern void uninit_channel(struct channel ch);
 
 #endif // INTERTHREAD_H
