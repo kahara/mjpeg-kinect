@@ -6,6 +6,12 @@
 #define SETUP_STREAM_IR  0x2
 #define SETUP_STREAMS (SETUP_STREAM_RGB) // or (SETUP_STREAM_IR) or (SETUP_STREAM_RGB | SETUP_STREAM_IR)
 
+// Lengths of frame buffers
+#define SETUP_BUFFER_LENGTH_M2G 0
+#define SETUP_BUFFER_LENGTH_G2P 8
+#define SETUP_BUFFER_LENGTH_P2C 8
+#define SETUP_BUFFER_LENGTH_C2S 8
+
 // How many milliseconds between frames
 #define SETUP_STREAM_INTERVAL 1000
 
