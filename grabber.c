@@ -19,19 +19,21 @@ void * grabber(void * args)
   struct thread_arg * ta = (struct thread_arg *)args;
   struct channel * input = ta->input, * output = ta->output;
   struct timeval tv;
+  int empty_count;
   
   // The new frame "ticker"
   struct sigaction sa;
   struct itimerval tmr;
   
-  uint8_t * frame_rgb; // XXX dummy test frame
+  // XXX dummy test frame
+  uint8_t * frame_rgb;
   
   // Prepare new frame tick handler
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
   sa.sa_handler = tick;
   sigaction(SIGALRM, &sa, NULL);
-
+  
   // Set up timer to tick every SETUP_STREAM_INTERVAL milliseconds  
   // XXX When at the end of program run, stop this timer before doing anything else
   tmr.it_value.tv_sec = SETUP_STREAM_INTERVAL / 1000;
@@ -49,7 +51,17 @@ void * grabber(void * args)
     select(0, NULL, NULL, NULL, &tv);
     if(grab_new_frame) {
       grab_new_frame = 0;
-      printf("grab new frame\n");
+      
+      sem_getvalue(&output->empty, &empty_count);
+      
+      if(empty_count < 1) {
+	printf("dropping frame\n", empty_count);	
+      } else {
+	sem_wait(&output->empty);
+	printf("grab new frame\n");
+	sem_post(&output->full);
+      }
+      
     }
   }
   
