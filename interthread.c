@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include "interthread.h"
 
 struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir)
@@ -9,8 +10,8 @@ struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir)
   struct channel ch;
   int i;
   
-  pthread_mutex_init(&ch.lock, NULL);
-  pthread_cond_init(&ch.new_frame, NULL);
+  sem_init(&ch.empty, 0, buflen);
+  sem_init(&ch.full, 0, 0);
   
   ch.rgb = buflen ? malloc(sizeof(struct frame) * buflen) : NULL;
   ch.ir = buflen ? malloc(sizeof(struct frame) * buflen) : NULL;

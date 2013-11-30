@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <inttypes.h>
 #include <stddef.h>
+#include <semaphore.h>
 
 struct frame {
   size_t size;
@@ -11,8 +12,8 @@ struct frame {
 };
 
 struct channel {
-  pthread_mutex_t lock; // producer signals consumer with cv that a new frame is available
-  pthread_cond_t new_frame;
+  sem_t empty;
+  sem_t full;
   
   struct frame * rgb; // buffer for rgb images
   struct frame * ir;  // ..same for ir images
