@@ -19,12 +19,12 @@ struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir)
   
   for(i = 0; i < buflen; i++) {
     if(size_rgb) {
-      ch.rgb[i * sizeof(struct frame)].size = size_rgb;
+      ch.rgb[i * sizeof(struct frame)].size = 0;
       ch.rgb[i * sizeof(struct frame)].data = malloc(size_rgb);      
     }
     
     if(size_ir) {
-      ch.ir[i * sizeof(struct frame)].size = size_ir;
+      ch.ir[i * sizeof(struct frame)].size = 0;
       ch.ir[i * sizeof(struct frame)].data = malloc(size_ir);
     }
   }
