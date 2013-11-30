@@ -12,6 +12,7 @@ struct frame {
 };
 
 struct channel {
+  pthread_mutex_t lock;
   sem_t empty;
   sem_t full;
   
