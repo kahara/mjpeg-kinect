@@ -10,6 +10,7 @@ struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir)
   struct channel ch;
   int i;
   
+  pthread_mutex_init(&ch.lock, NULL);
   sem_init(&ch.empty, 0, buflen);
   sem_init(&ch.full, 0, 0);
   
