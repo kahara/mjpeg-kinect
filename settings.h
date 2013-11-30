@@ -14,6 +14,9 @@
 // How many milliseconds between frames
 #define SETUP_STREAM_INTERVAL 1000
 
+// How busy to poll channels
+#define SETUP_POLL_DELAY 10000
+
 // Images; RGB is a raw Bayer image (RGGB)
 #define SETUP_IMAGE_WIDTH_RGB 640
 #define SETUP_IMAGE_HEIGHT_RGB 480
