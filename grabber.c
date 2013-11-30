@@ -46,7 +46,7 @@ void * grabber(void * args)
   
   while(1) {
     tv.tv_sec = 0;
-    tv.tv_usec = 10000;
+    tv.tv_usec = SETUP_POLL_DELAY;
     select(0, NULL, NULL, NULL, &tv);
     
     if(grab_new_frame) {
