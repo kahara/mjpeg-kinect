@@ -17,9 +17,8 @@ void tick(int signum) { grab_new_frame = 1; }
 void * grabber(void * args)
 {
   struct thread_arg * ta = (struct thread_arg *)args;
-  struct channel * input = ta->input, * output = ta->output;
+  struct channel * output = ta->output;
   struct timeval tv;
-  int empty_count;
   
   // The new frame "ticker"
   struct sigaction sa;
@@ -49,17 +48,17 @@ void * grabber(void * args)
     tv.tv_sec = 0;
     tv.tv_usec = 10000;
     select(0, NULL, NULL, NULL, &tv);
+    
     if(grab_new_frame) {
       grab_new_frame = 0;
       
-      sem_getvalue(&output->empty, &empty_count);
-      
-      if(empty_count < 1) {
-	printf("dropping frame\n", empty_count);	
+      if(sem_trywait(&output->empty)) {
+	printf("grabber dropping frame\n");
       } else {
-	sem_wait(&output->empty);
-	printf("grab new frame\n");
+	pthread_mutex_lock(&output->lock);
+	printf("grabber producing new frame\n");
 	sem_post(&output->full);
+	pthread_mutex_unlock(&output->lock);
       }
       
     }
