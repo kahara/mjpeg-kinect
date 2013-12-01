@@ -14,7 +14,7 @@ struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir)
   sem_init(&ch.empty, 0, buflen);
   sem_init(&ch.full, 0, 0);
   
-  ch.serial = 0;
+  ch.serial = -1;
   
   ch.rgb = buflen ? malloc(sizeof(struct frame) * buflen) : NULL;
   ch.ir = buflen ? malloc(sizeof(struct frame) * buflen) : NULL;
