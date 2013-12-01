@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall -pthread
+CFLAGS = -g -Wall -pthread -DDEBUG
 LIBS = -lrt -ljpeg
 
 mjpeg-kinect: main.o grabber.o preprocessor.o compressor.o server.o interthread.o
