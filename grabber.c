@@ -53,11 +53,16 @@ void * grabber(void * args)
       grab_new_frame = 0;
       
       if(sem_trywait(&output->empty)) {
+#ifdef DEBUG
 	printf("grabber dropping frame\n");
+#endif
       } else {
 	pthread_mutex_lock(&output->lock);
+#ifdef DEBUG
 	printf("grabber producing new frame\n");
+#endif
 	sem_post(&output->full);
+	output->serial++;
 	pthread_mutex_unlock(&output->lock);
       }
       

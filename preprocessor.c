@@ -39,15 +39,12 @@ void * preprocessor(void * args)
     
     if(!sem_trywait(&input->full)) {
       pthread_mutex_lock(&input->lock);
-      
       sem_getvalue(&input->full, &full);
-      
       buf_index = (unsigned int)((input->serial - full) % SETUP_BUFFER_LENGTH_G2P);
-      
+#ifdef DEBUG
       printf("preprocessor consuming new frame (serial: %llu, buffer: %d)\n", input->serial, buf_index);
-      
+#endif
       // XXX copy incoming frame to ibuf_rgb or/and ibuf_ir
-      
       sem_post(&input->empty);
       pthread_mutex_unlock(&input->lock);
       
@@ -60,10 +57,14 @@ void * preprocessor(void * args)
       }
       
       if(sem_trywait(&output->empty)) {
+#ifdef DEBUG
 	printf("preprocessor dropping frame\n");
+#endif
       } else {
 	pthread_mutex_lock(&output->lock);
+#ifdef DEBUG
         printf("preprocessor producing new frame\n");
+#endif
         sem_post(&output->full);
 	pthread_mutex_unlock(&output->lock);
       }
