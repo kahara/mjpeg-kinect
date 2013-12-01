@@ -16,6 +16,8 @@ struct channel {
   sem_t empty;
   sem_t full;
   
+  uint64_t serial;
+  
   struct frame * rgb; // buffer for rgb images
   struct frame * ir;  // ..same for ir images
 };
