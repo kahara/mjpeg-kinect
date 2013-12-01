@@ -20,6 +20,7 @@ void * preprocessor(void * args)
   struct channel * input = ta->input, * output = ta->output;
   struct timeval tv;
   uint8_t * ibuf_rgb, * obuf_rgb, * ibuf_ir, * obuf_ir;
+  int full, buf_index;
   
   if(SETUP_STREAMS & SETUP_STREAM_RGB) {
     ibuf_rgb = malloc(SETUP_IMAGE_SIZE_RAW_RGB);
@@ -37,11 +38,18 @@ void * preprocessor(void * args)
     select(0, NULL, NULL, NULL, &tv);
     
     if(!sem_trywait(&input->full)) {
-      pthread_mutex_lock(&output->lock);
-      printf("preprocessor consuming new frame\n");
+      pthread_mutex_lock(&input->lock);
+      
+      sem_getvalue(&input->full, &full);
+      
+      buf_index = (unsigned int)((input->serial - full) % SETUP_BUFFER_LENGTH_G2P);
+      
+      printf("preprocessor consuming new frame (serial: %llu, buffer: %d)\n", input->serial, buf_index);
+      
       // XXX copy incoming frame to ibuf_rgb or/and ibuf_ir
+      
       sem_post(&input->empty);
-      pthread_mutex_unlock(&output->lock);
+      pthread_mutex_unlock(&input->lock);
       
       if(SETUP_STREAMS & SETUP_STREAM_RGB) {
 	preprocess_rgb(ibuf_rgb, obuf_rgb, SETUP_IMAGE_WIDTH_RGB, SETUP_IMAGE_HEIGHT_RGB);
