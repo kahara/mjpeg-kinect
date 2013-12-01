@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <string.h>
 #include "settings.h"
 #include "grabber.h"
 #include "interthread.h"
@@ -25,7 +26,7 @@ void * grabber(void * args)
   struct itimerval tmr;
   
   // XXX dummy test frame
-  uint8_t * frame_rgb;
+  uint8_t * test_frame_rgb, * test_frame_ir;
   
   // Prepare new frame tick handler
   sigemptyset(&sa.sa_mask);
@@ -41,7 +42,14 @@ void * grabber(void * args)
   setitimer(ITIMER_REAL, &tmr, NULL);
   
   if(SETUP_STREAMS & SETUP_STREAM_RGB) {
-    frame_rgb = malloc(SETUP_IMAGE_SIZE_RAW_RGB);
+    printf("RGB\n");
+    test_frame_rgb = malloc(SETUP_IMAGE_SIZE_RAW_RGB);
+    memset(test_frame_rgb, 170, SETUP_IMAGE_SIZE_RAW_RGB);
+  }
+  
+  if(SETUP_STREAMS & SETUP_STREAM_IR) {
+    test_frame_ir = malloc(SETUP_IMAGE_SIZE_RAW_IR);
+    memset(test_frame_ir, 170, SETUP_IMAGE_SIZE_RAW_IR);
   }
   
   while(1) {
@@ -61,8 +69,15 @@ void * grabber(void * args)
 #ifdef DEBUG
 	printf("grabber producing new frame\n");
 #endif
-	sem_post(&output->full);
 	output->serial++;
+	
+	printf("%llu\t%p\t%p\t%d\n", output->serial, output->rgb[output->serial % SETUP_BUFFER_LENGTH_G2P].data, test_frame_rgb, SETUP_IMAGE_SIZE_RAW_RGB);
+	
+	output->rgb[output->serial % SETUP_BUFFER_LENGTH_G2P].size = SETUP_IMAGE_SIZE_RAW_RGB;
+	
+	memcpy(output->rgb[output->serial % SETUP_BUFFER_LENGTH_G2P].data, test_frame_rgb, SETUP_IMAGE_SIZE_RAW_RGB);
+	
+	sem_post(&output->full);
 	pthread_mutex_unlock(&output->lock);
       }
       
