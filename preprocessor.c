@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "settings.h"
 #include "preprocessor.h"
 #include "interthread.h"
@@ -44,16 +45,16 @@ void * preprocessor(void * args)
 #ifdef DEBUG
       printf("preprocessor consuming new frame (serial: %llu, buffer: %d)\n", input->serial, buf_index);
 #endif
-      // XXX copy incoming frame to ibuf_rgb or/and ibuf_ir
+      
       sem_post(&input->empty);
       pthread_mutex_unlock(&input->lock);
       
+      // Copy incoming frames to local buffers
       if(SETUP_STREAMS & SETUP_STREAM_RGB) {
-	preprocess_rgb(ibuf_rgb, obuf_rgb, SETUP_IMAGE_WIDTH_RGB, SETUP_IMAGE_HEIGHT_RGB);
+	memcpy(ibuf_rgb, input->rgb[buf_index].data, SETUP_IMAGE_SIZE_RAW_RGB);
       }
-      
       if(SETUP_STREAMS & SETUP_STREAM_IR) {
-	preprocess_ir(ibuf_ir, obuf_ir, SETUP_IMAGE_WIDTH_IR, SETUP_IMAGE_HEIGHT_IR);
+	memcpy(ibuf_ir, input->ir[buf_index].data, SETUP_IMAGE_SIZE_RAW_IR);
       }
       
       if(sem_trywait(&output->empty)) {
@@ -67,6 +68,14 @@ void * preprocessor(void * args)
 #endif
         sem_post(&output->full);
 	pthread_mutex_unlock(&output->lock);
+      }
+      
+      // process frames
+      if(SETUP_STREAMS & SETUP_STREAM_RGB) {
+	preprocess_rgb(ibuf_rgb, obuf_rgb, SETUP_IMAGE_WIDTH_RGB, SETUP_IMAGE_HEIGHT_RGB);
+      }
+      if(SETUP_STREAMS & SETUP_STREAM_IR) {
+	preprocess_ir(ibuf_ir, obuf_ir, SETUP_IMAGE_WIDTH_IR, SETUP_IMAGE_HEIGHT_IR);
       }
       
     }
