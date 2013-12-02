@@ -70,11 +70,10 @@ void * grabber(void * args)
 	printf("grabber producing new frame\n");
 #endif
 	output->serial++;
-	
+#ifdef DEBUG
 	printf("%llu\t%p\t%p\t%d\n", output->serial, output->rgb[output->serial % SETUP_BUFFER_LENGTH_G2P].data, test_frame_rgb, SETUP_IMAGE_SIZE_RAW_RGB);
-	
+#endif
 	output->rgb[output->serial % SETUP_BUFFER_LENGTH_G2P].size = SETUP_IMAGE_SIZE_RAW_RGB;
-	
 	memcpy(output->rgb[output->serial % SETUP_BUFFER_LENGTH_G2P].data, test_frame_rgb, SETUP_IMAGE_SIZE_RAW_RGB);
 	
 	sem_post(&output->full);
