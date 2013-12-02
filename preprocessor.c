@@ -5,14 +5,27 @@
 #include "preprocessor.h"
 #include "interthread.h"
 
+// https://github.com/OpenKinect/libfreenect/blob/master/src/cameras.c:convert_bayer_to_rgb()
 void preprocess_rgb(uint8_t * in, uint8_t * out, int width, int height)
 {
-  
+  printf("preprocess_rgb()\n");
 }
 
+// https://github.com/OpenKinect/libfreenect/blob/master/src/cameras.c:convert_packed_to_8bit()
 void preprocess_ir(uint8_t * in, uint8_t * out, int width, int height)
 {
+  int vw = 10, n = width * height;
+  uint32_t buffer = 0;
+  int bitsIn = 0;
   
+  while (n--) {
+    while (bitsIn < vw) {
+      buffer = (buffer << 8) | *(in++);
+      bitsIn += 8;
+    }
+    bitsIn -= vw;
+    *(out++) = buffer >> (bitsIn + vw - 8);
+  }
 }
 
 void * preprocessor(void * args)
