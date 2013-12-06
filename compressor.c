@@ -6,8 +6,8 @@
 #include "compressor.h"
 #include "interthread.h"
 
-void compress_rgb(uint8_t * in, uint8_t * out, int width, int height);
-void compress_ir(uint8_t * in, uint8_t * out, int width, int height);
+size_t compress_rgb(uint8_t * in, uint8_t * out, int width, int height);
+size_t compress_ir(uint8_t * in, uint8_t * out, int width, int height);
 
 void * compressor(void * args)
 {
@@ -16,6 +16,7 @@ void * compressor(void * args)
   struct timeval tv;
   uint8_t * ibuf_rgb, * obuf_rgb, * ibuf_ir, * obuf_ir;
   int full, buf_index;
+  size_t size_rgb, size_ir;
   
   if(SETUP_STREAMS & SETUP_STREAM_RGB) {
     ibuf_rgb = malloc(SETUP_IMAGE_SIZE_RGB);
@@ -52,48 +53,43 @@ void * compressor(void * args)
       
       // compress frames
       if(SETUP_STREAMS & SETUP_STREAM_RGB) {
-	compress_rgb(ibuf_rgb, obuf_rgb, SETUP_IMAGE_WIDTH_RGB, SETUP_IMAGE_HEIGHT_RGB);
+	size_rgb = compress_rgb(ibuf_rgb, obuf_rgb, SETUP_IMAGE_WIDTH_RGB, SETUP_IMAGE_HEIGHT_RGB);
       }
       if(SETUP_STREAMS & SETUP_STREAM_IR) {
-	compress_ir(ibuf_ir, obuf_ir, SETUP_IMAGE_WIDTH_IR, SETUP_IMAGE_HEIGHT_IR);
+	size_ir = compress_ir(ibuf_ir, obuf_ir, SETUP_IMAGE_WIDTH_IR, SETUP_IMAGE_HEIGHT_IR);
       }
       
-      if(sem_trywait(&output->empty)) {
+      // pass frame to Server
+      // no semaphores are involved and the buffer is "free-running"
+      pthread_mutex_lock(&output->lock);
 #ifdef DEBUG
-	printf("compressor dropping frame\n");
-#endif
-      } else {
-	pthread_mutex_lock(&output->lock);
-#ifdef DEBUG
-        printf("compressor producing new frame\n");
+      printf("compressor producing new frame\n");
 #endif	
-	output->serial++;
-	
-	if(SETUP_STREAMS & SETUP_STREAM_RGB) {
-	  output->rgb[output->serial % SETUP_BUFFER_LENGTH_C2S].size = SETUP_IMAGE_SIZE_RGB;
-	  memcpy(output->rgb[output->serial % SETUP_BUFFER_LENGTH_C2S].data, obuf_rgb, SETUP_IMAGE_SIZE_RGB);
-	}
-	
-	if(SETUP_STREAMS & SETUP_STREAM_IR) {
-	  output->ir[output->serial % SETUP_BUFFER_LENGTH_C2S].size = SETUP_IMAGE_SIZE_IR;
-	  memcpy(output->ir[output->serial % SETUP_BUFFER_LENGTH_C2S].data, obuf_ir, SETUP_IMAGE_SIZE_IR);
-	}
-	
-        sem_post(&output->full);
-	pthread_mutex_unlock(&output->lock);
+      output->serial++;
+      
+      if(SETUP_STREAMS & SETUP_STREAM_RGB) {
+	output->rgb[output->serial % SETUP_BUFFER_LENGTH_C2S].size = size_rgb;
+	memcpy(output->rgb[output->serial % SETUP_BUFFER_LENGTH_C2S].data, obuf_rgb, size_rgb);
       }
+      
+      if(SETUP_STREAMS & SETUP_STREAM_IR) {
+	output->ir[output->serial % SETUP_BUFFER_LENGTH_C2S].size = size_ir;
+	memcpy(output->ir[output->serial % SETUP_BUFFER_LENGTH_C2S].data, obuf_ir, size_ir);
+      }
+      
+      pthread_mutex_unlock(&output->lock);
     }
   }
   
   return NULL;
 }
 
-void compress_rgb(uint8_t * in, uint8_t * out, int width, int height)
+size_t compress_rgb(uint8_t * in, uint8_t * out, int width, int height)
 {
-  
+  return 0;
 }
 
-void compress_ir(uint8_t * in, uint8_t * out, int width, int height)
+size_t compress_ir(uint8_t * in, uint8_t * out, int width, int height)
 {
-  
+  return 0;
 }
