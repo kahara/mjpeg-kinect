@@ -1,10 +1,12 @@
 CC = gcc
-CFLAGS = -g -Wall -pthread -DDEBUG
+CFLAGS = -g -O0 -Wall -pthread -DDEBUG
 #CFLAGS = -O3 -Wall -pthread
+STATIC = -static
+#STATIC = 
 LIBS = -lrt -ljpeg
 
 mjpeg-kinect: main.o grabber.o preprocessor.o compressor.o server.o interthread.o
-	$(CC) $(CFLAGS) $^ -o mjpeg-kinect $(LIBS)
+	$(CC) $(STATIC) $(CFLAGS) $^ -o mjpeg-kinect $(LIBS)
 
 main.o: main.c settings.h grabber.h
 	$(CC) $(CFLAGS) -c $<
