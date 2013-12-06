@@ -27,6 +27,7 @@ void * grabber(void * args)
   
   // XXX dummy test frame
   uint8_t * test_frame_rgb, * test_frame_ir;
+  uint32_t test_counter_rgb = 0, test_counter_ir = 0;
   
   // Prepare new frame tick handler
   sigemptyset(&sa.sa_mask);
@@ -44,12 +45,12 @@ void * grabber(void * args)
   if(SETUP_STREAMS & SETUP_STREAM_RGB) {
     printf("RGB\n");
     test_frame_rgb = malloc(SETUP_IMAGE_SIZE_RAW_RGB);
-    memset(test_frame_rgb, 170, SETUP_IMAGE_SIZE_RAW_RGB);
+    memset(test_frame_rgb, 0, SETUP_IMAGE_SIZE_RAW_RGB);
   }
   
   if(SETUP_STREAMS & SETUP_STREAM_IR) {
     test_frame_ir = malloc(SETUP_IMAGE_SIZE_RAW_IR);
-    memset(test_frame_ir, 170, SETUP_IMAGE_SIZE_RAW_IR);
+    memset(test_frame_ir, 0, SETUP_IMAGE_SIZE_RAW_IR);
   }
   
   while(1) {
@@ -59,6 +60,9 @@ void * grabber(void * args)
     
     if(grab_new_frame) {
       grab_new_frame = 0;
+      
+      test_frame_rgb[test_counter_rgb] = 255;
+      test_frame_ir[test_counter_ir] = 255;
       
       if(sem_trywait(&output->empty)) {
 #ifdef DEBUG
