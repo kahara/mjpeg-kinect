@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <jpeglib.h>
 #include "settings.h"
 #include "compressor.h"
@@ -17,6 +21,10 @@ void * compressor(void * args)
   uint8_t * ibuf_rgb, * obuf_rgb, * ibuf_ir, * obuf_ir;
   int full, buf_index;
   size_t size_rgb, size_ir;
+#ifdef DEBUG
+  char filename[1024];
+  int f;
+#endif
   
   if(SETUP_STREAMS & SETUP_STREAM_RGB) {
     ibuf_rgb = malloc(SETUP_IMAGE_SIZE_RGB);
@@ -62,10 +70,22 @@ void * compressor(void * args)
       // pass frame to Server
       // no semaphores are involved and the buffer is "free-running"
       pthread_mutex_lock(&output->lock);
-#ifdef DEBUG
-      printf("compressor producing new frame\n");
-#endif	
       output->serial++;
+      
+#ifdef DEBUG
+      printf("compressor producing new frame of size %u (rgb), %u (ir)\n", size_rgb, size_ir);
+      // xxx check existence of dump directory and create it if it does not exist
+      if(size_rgb) {
+	sprintf(filename, "./dump/rgb-%05llu.jpg", output->serial);
+	f = open(filename, O_CREAT | O_RDWR);
+	write(f, obuf_rgb, size_rgb);
+	close(f);
+      }
+      
+      if(size_ir) {
+	// ...
+      }
+#endif
       
       if(SETUP_STREAMS & SETUP_STREAM_RGB) {
 	output->rgb[output->serial % SETUP_BUFFER_LENGTH_C2S].size = size_rgb;
@@ -84,9 +104,40 @@ void * compressor(void * args)
   return NULL;
 }
 
+// http://stackoverflow.com/a/2296662
 size_t compress_rgb(uint8_t * in, uint8_t * out, int width, int height)
 {
-  return 0;
+  struct jpeg_compress_struct cinfo = { 0 };
+  struct jpeg_error_mgr jerr;
+  JSAMPROW row_ptr[1];
+  int row_stride;
+  unsigned long int length = 0;
+  unsigned char * output = NULL;
+  
+  cinfo.err = jpeg_std_error(&jerr);
+  jpeg_create_compress(&cinfo);
+  jpeg_mem_dest(&cinfo, &output, &length);
+  
+  cinfo.image_width = width;
+  cinfo.image_height = height;
+  cinfo.input_components = 3;
+  cinfo.in_color_space = JCS_RGB;
+  
+  jpeg_set_defaults(&cinfo);
+  jpeg_start_compress(&cinfo, TRUE);
+  row_stride = width * 3;
+  
+  while (cinfo.next_scanline < cinfo.image_height) {
+    row_ptr[0] = &out[cinfo.next_scanline * row_stride];
+    jpeg_write_scanlines(&cinfo, row_ptr, 1);
+  }
+  
+  jpeg_finish_compress(&cinfo);
+  jpeg_destroy_compress(&cinfo);
+  
+  memcpy(out, output, length);
+  
+  return length;
 }
 
 size_t compress_ir(uint8_t * in, uint8_t * out, int width, int height)
