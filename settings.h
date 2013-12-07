@@ -14,7 +14,7 @@
 // How many milliseconds between frames
 #define SETUP_STREAM_INTERVAL 1000
 
-// How busy to poll channels
+// How busy to poll channels (microseconds)
 #define SETUP_POLL_DELAY 10000
 
 // Images; RGB is a raw Bayer image (RGGB)
@@ -29,5 +29,10 @@
 #define SETUP_IMAGE_SIZE_RAW_IR ((SETUP_IMAGE_WIDTH_IR * SETUP_IMAGE_HEIGHT_IR * 10) / 8)
 #define SETUP_IMAGE_SIZE_IR (SETUP_IMAGE_WIDTH_IR * SETUP_IMAGE_HEIGHT_IR)
 
-#endif // SETTINGS_H
+// Server
+#define SETUP_SERVER_ADDRESS "0.0.0.0"
+#define SETUP_SERVER_PORT 8000
+#define SETUP_SERVER_PATH_RGB "/rgb"
+#define SETUP_SERVER_PATH_IR "/ir"
 
+#endif // SETTINGS_H
