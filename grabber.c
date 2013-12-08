@@ -43,7 +43,6 @@ void * grabber(void * args)
   setitimer(ITIMER_REAL, &tmr, NULL);
   
   if(SETUP_STREAMS & SETUP_STREAM_RGB) {
-    printf("RGB\n");
     test_frame_rgb = malloc(SETUP_IMAGE_SIZE_RAW_RGB);
     memset(test_frame_rgb, 0, SETUP_IMAGE_SIZE_RAW_RGB);
   }
