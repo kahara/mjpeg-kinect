@@ -63,6 +63,7 @@ void * serve(void * conn)
   size_t buffer_size = BUFFER;
   
   while((len = read(connection, buffer_ptr, BUFFER)) > 0) {
+    // xxx fix broken logic here
     if(buffer_size <= BUFFER_MAX) {
       buffer_size += BUFFER;
       buffer_in = realloc(buffer_in, buffer_size);
