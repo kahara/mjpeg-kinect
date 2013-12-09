@@ -32,7 +32,6 @@ void * server(void * args)
   sock = socket(AF_INET, SOCK_STREAM, 0);
   optval = 1;
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-  
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = inet_addr(SETUP_SERVER_ADDRESS);
@@ -46,7 +45,6 @@ void * server(void * args)
     inet_ntop(AF_INET, &addr_conn.sin_addr.s_addr, ipaddress, alen);
     printf("connection (%d) from %s:%d\n", connection, ipaddress, addr_conn.sin_port);
 #endif
-    
     pthread_create(&thread, NULL, &serve, (void *)connection);
   }
   
@@ -56,7 +54,26 @@ void * server(void * args)
 // serving connections with dedicated threads may not scale too well
 void * serve(void * conn)
 {
-  int connection = (int)conn; // a form of abuse but it works
+  int connection = (int)conn; // passing socket like this is a form of abuse but it works
+#define BUFFER 1024
+#define BUFFER_MAX 8192
+  int len;
+  char * buffer_in = malloc(BUFFER);
+  char * buffer_ptr = buffer_in;
+  size_t buffer_size = BUFFER;
+  
+  while((len = read(connection, buffer_ptr, BUFFER)) > 0) {
+    if(buffer_size <= BUFFER_MAX) {
+      buffer_size += BUFFER;
+      buffer_in = realloc(buffer_in, buffer_size);
+      buffer_ptr += BUFFER;
+    } else {
+      printf("FAIL\n");
+      // xxx fail here
+    }
+  }
+  
+  printf("%d: %s\n", buffer_size, buffer_in);
   
   close(connection);
   return NULL;
