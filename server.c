@@ -7,18 +7,18 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <sys/select.h>
 #include "settings.h"
 #include "server.h"
 #include "interthread.h"
 
-void * serve(void * conn);
+void * serve(void * c);
 
 struct channel * frames;
 
 void * server(void * args)
 {
   struct thread_arg * ta = (struct thread_arg *)args;
-  struct timeval tv;
   
   int sock, connection, optval;
   struct sockaddr_in addr, addr_conn;
@@ -52,30 +52,54 @@ void * server(void * args)
 }
 
 // serving connections with dedicated threads may not scale too well
-void * serve(void * conn)
+void * serve(void * c)
 {
-  int connection = (int)conn; // passing socket like this is a form of abuse but it works
-#define BUFFER 1024
-#define BUFFER_MAX 8192
-  int len;
-  char * buffer_in = malloc(BUFFER);
-  char * buffer_ptr = buffer_in;
-  size_t buffer_size = BUFFER;
+  int conn = (int)c; // passing a socket like this is a form of abuse but it works
   
-  while((len = read(connection, buffer_ptr, BUFFER)) > 0) {
-    // xxx fix broken logic here
-    if(buffer_size <= BUFFER_MAX) {
-      buffer_size += BUFFER;
-      buffer_in = realloc(buffer_in, buffer_size);
-      buffer_ptr += BUFFER;
-    } else {
-      printf("FAIL\n");
-      // xxx fail here
+#define BLOCK_SIZE 1024
+#define REQUEST_MAX 65536
+  char block[BLOCK_SIZE];
+  char * buffer_in;
+  size_t buffer_size = 0;
+  
+  fd_set fds;
+  struct timeval tv;
+  int len;
+  
+  FD_ZERO(&fds);
+  FD_SET(conn, &fds);
+  tv.tv_sec = 1;
+  tv.tv_usec = 0;
+  if(!select(conn + 1, &fds, NULL, NULL, &tv)) { // client didn't send anything; terminate
+    close(conn);
+    return NULL;
+  }
+  
+  while(1) {
+    len = read(conn, block, BLOCK_SIZE);
+    buffer_size += len;
+    
+    if(buffer_size > REQUEST_MAX) { // request too long; terminate
+      close(conn);
+      return NULL;
     }
+    
+    buffer_in = realloc(buffer_in, buffer_size + 1);
+    
+    printf("%p %p (%d)\n", buffer_in, buffer_in + buffer_size, len);
+    memcpy(buffer_in + buffer_size - len, block, len);
+    buffer_in[buffer_size] = 0;
+    
+    FD_ZERO(&fds);
+    FD_SET(conn, &fds);
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    if(!select(conn + 1, &fds, NULL, NULL, &tv))
+      break;
   }
   
   printf("%d: %s\n", buffer_size, buffer_in);
   
-  close(connection);
+  close(conn);
   return NULL;
 }
