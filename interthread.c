@@ -3,7 +3,10 @@
 #include <inttypes.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <sys/time.h>
 #include "interthread.h"
+
+time_t last_grab_request = 0;
 
 struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir)
 {
@@ -37,4 +40,9 @@ struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir)
 void uninit_channel(struct channel ch)
 {
   // ...
+}
+
+void request_grab(void)
+{
+  time(&last_grab_request); // this should be atomic, rigth?
 }
