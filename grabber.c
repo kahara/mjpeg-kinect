@@ -53,14 +53,12 @@ void * grabber(void * args)
     memset(test_frame_ir, 0, SETUP_IMAGE_SIZE_RAW_IR);
   }
   
-  while(1) {
-    printf("get_or_set_grab_request(): %llu\n", (unsigned long long int)get_or_set_grab_request(0));
-    
+  while(1) {    
     tv.tv_sec = 0;
     tv.tv_usec = SETUP_POLL_DELAY;
     select(0, NULL, NULL, NULL, &tv);
     
-    if(grab_new_frame) {
+    if(grab_new_frame && (time(NULL) - get_or_set_grab_request(0)) < 1) {
       grab_new_frame = 0;
       
       test_frame_rgb[test_counter_rgb] = 255;
