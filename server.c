@@ -11,6 +11,7 @@
 #include "settings.h"
 #include "server.h"
 #include "interthread.h"
+#include "grabber.h"
 
 void * serve(void * c);
 
@@ -98,7 +99,7 @@ void * serve(void * c)
       break;
   }
   
-  request_grab();
+  get_or_set_grab_request(1);
   
   printf("%d: %s\n", buffer_size, buffer_in);
   

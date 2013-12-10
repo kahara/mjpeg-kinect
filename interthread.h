@@ -30,7 +30,4 @@ struct thread_arg {
 extern struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir);
 extern void uninit_channel(struct channel ch);
 
-extern void request_grab(void);
-extern time_t last_grab_request;
-
 #endif // INTERTHREAD_H

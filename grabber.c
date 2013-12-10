@@ -13,6 +13,7 @@
 /* pthread_cond_t new_frame; */
 
 uint8_t grab_new_frame;
+
 void tick(int signum) { grab_new_frame = 1; }
 
 void * grabber(void * args)
@@ -53,6 +54,8 @@ void * grabber(void * args)
   }
   
   while(1) {
+    printf("get_or_set_grab_request(): %llu\n", (unsigned long long int)get_or_set_grab_request(0));
+    
     tv.tv_sec = 0;
     tv.tv_usec = SETUP_POLL_DELAY;
     select(0, NULL, NULL, NULL, &tv);

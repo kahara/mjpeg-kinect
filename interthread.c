@@ -6,8 +6,6 @@
 #include <sys/time.h>
 #include "interthread.h"
 
-time_t last_grab_request = 0;
-
 struct channel init_channel(size_t buflen, size_t size_rgb, size_t size_ir)
 {
   struct channel ch;
@@ -42,7 +40,12 @@ void uninit_channel(struct channel ch)
   // ...
 }
 
-void request_grab(void)
+time_t get_or_set_grab_request(int update)
 {
-  time(&last_grab_request); // this should be atomic, rigth?
+  static time_t last_grab_request;
+  
+  if(update)
+    time(&last_grab_request); // this should be atomic, rigth?
+  
+  return last_grab_request;
 }
