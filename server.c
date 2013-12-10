@@ -99,9 +99,14 @@ void * serve(void * c)
       break;
   }
   
-  get_or_set_grab_request(1);
-  
   printf("%d: %s\n", buffer_size, buffer_in);
+  
+  while(1) {
+    get_or_set_grab_request(1);
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000;
+    select(0, NULL, NULL, NULL, &tv);
+  }
   
   close(conn);
   return NULL;
