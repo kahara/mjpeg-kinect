@@ -98,6 +98,8 @@ void * serve(void * c)
       break;
   }
   
+  request_grab();
+  
   printf("%d: %s\n", buffer_size, buffer_in);
   
   close(conn);
