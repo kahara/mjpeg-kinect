@@ -87,9 +87,14 @@ void * serve(void * c)
     
     buffer_in = realloc(buffer_in, buffer_size + 1);
     
-    printf("%p %p (%d)\n", buffer_in, buffer_in + buffer_size, len);
     memcpy(buffer_in + buffer_size - len, block, len);
     buffer_in[buffer_size] = 0;
+    
+    // check end of HTTP request
+    if(buffer_in[buffer_size - 3] == '\n' && buffer_in[buffer_size - 2] == '\r' && buffer_in[buffer_size - 1] == '\n')
+      break;
+    else if(buffer_in[buffer_size - 2] == '\n' && buffer_in[buffer_size - 1] == '\n')
+      break;
     
     FD_ZERO(&fds);
     FD_SET(conn, &fds);
@@ -101,10 +106,12 @@ void * serve(void * c)
   
   printf("%d: %s\n", buffer_size, buffer_in);
   
-  while(1) {
-    get_or_set_grab_request(1);
+  get_or_set_grab_request(1);
+  
+  while(1) {    
+    get_or_set_grab_request(1);    
     tv.tv_sec = 0;
-    tv.tv_usec = 100000;
+    tv.tv_usec = 500000;
     select(0, NULL, NULL, NULL, &tv);
   }
   
